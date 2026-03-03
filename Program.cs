@@ -1,18 +1,20 @@
-using DLL1.Controllers;   // optional (can remove if not needed)
+using DLL1.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Middleware
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.RoutePrefix = string.Empty;   // Swagger becomes home page
+});
 
+app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,0 +1,12 @@
+D:\UserPluginAPI\DLL2\bin\Debug\net8.0\DLL2.deps.json
+D:\UserPluginAPI\DLL2\bin\Debug\net8.0\DLL2.dll
+D:\UserPluginAPI\DLL2\bin\Debug\net8.0\DLL2.pdb
+D:\UserPluginAPI\DLL2\obj\Debug\net8.0\DLL2.GeneratedMSBuildEditorConfig.editorconfig
+D:\UserPluginAPI\DLL2\obj\Debug\net8.0\DLL2.AssemblyInfoInputs.cache
+D:\UserPluginAPI\DLL2\obj\Debug\net8.0\DLL2.AssemblyInfo.cs
+D:\UserPluginAPI\DLL2\obj\Debug\net8.0\DLL2.csproj.CoreCompileInputs.cache
+D:\UserPluginAPI\DLL2\obj\Debug\net8.0\DLL2.sourcelink.json
+D:\UserPluginAPI\DLL2\obj\Debug\net8.0\DLL2.dll
+D:\UserPluginAPI\DLL2\obj\Debug\net8.0\refint\DLL2.dll
+D:\UserPluginAPI\DLL2\obj\Debug\net8.0\DLL2.pdb
+D:\UserPluginAPI\DLL2\obj\Debug\net8.0\ref\DLL2.dll
