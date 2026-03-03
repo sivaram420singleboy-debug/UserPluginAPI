@@ -14,8 +14,6 @@
   <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
 <ProjectReference Include="DLL1\DLL1.csproj" />
 <ProjectReference Include="DLL2\DLL2.csproj" />
-<ProjectReference Include="plugins\CalculatorAPI\CalculatorAPI.csproj" />
-<ProjectReference Include="plugins\ImageAPI\ImageAPI.csproj" />
 </ItemGroup>
 
 </Project>
