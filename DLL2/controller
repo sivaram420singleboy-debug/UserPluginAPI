@@ -1,0 +1,14 @@
+namespace DLL2.Controllers;
+
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("api/[controller]")]
+public class Dll2Controller : ControllerBase
+{
+    [HttpGet("test")]
+    public IActionResult Test()
+    {
+        return Ok("DLL2 Working");
+    }
+}
