@@ -18,7 +18,24 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.MapControllers();
+
+app.MapGet("/Calculator", () =>
+{
+    return Results.Redirect("/api/Calculator/addoperation?a=5&b=3");
+});
+
+app.MapGet("/User", () =>
+{
+    return Results.Redirect("/api/User/getusers");
+});
+
+app.MapGet("/Image", () =>
+{
+    return Results.Redirect("/api/Image/ConvertPNG");
+});
 
 app.Run();
