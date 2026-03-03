@@ -133,6 +133,8 @@ D:\UserPluginAPI\bin\Debug\net8.0\DLL2.pdb
 D:\UserPluginAPI\obj\Debug\net8.0\UserPluginAPI.csproj.AssemblyReference.cache
 D:\UserPluginAPI\obj\Debug\net8.0\rpswa.dswa.cache.json
 D:\UserPluginAPI\obj\Debug\net8.0\UserPluginAPI.GeneratedMSBuildEditorConfig.editorconfig
+D:\UserPluginAPI\obj\Debug\net8.0\UserPluginAPI.AssemblyInfoInputs.cache
+D:\UserPluginAPI\obj\Debug\net8.0\UserPluginAPI.AssemblyInfo.cs
 D:\UserPluginAPI\obj\Debug\net8.0\UserPluginAPI.csproj.CoreCompileInputs.cache
 D:\UserPluginAPI\obj\Debug\net8.0\UserPluginAPI.MvcApplicationPartsAssemblyInfo.cs
 D:\UserPluginAPI\obj\Debug\net8.0\UserPluginAPI.MvcApplicationPartsAssemblyInfo.cache
