@@ -16,13 +16,13 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-app.UseSwagger();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
+app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.RoutePrefix = string.Empty;
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserPluginAPI v1");
-    c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+    c.RoutePrefix = string.Empty;   // Swagger becomes homepage
 });
 
 app.UseHttpsRedirection();
