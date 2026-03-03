@@ -22,7 +22,10 @@ app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.RoutePrefix = string.Empty;   // Swagger becomes homepage
+    c.RoutePrefix = string.Empty;
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserPluginAPI v1");
+
+    c.InjectJavascript("/swagger-custom.js");
 });
 
 app.UseHttpsRedirection();
