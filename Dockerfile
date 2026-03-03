@@ -1,18 +1,19 @@
-# ---------- BUILD STAGE ----------
+# ---------------- BUILD STAGE ----------------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy csproj files first (better practice)
+# Copy project file and restore
 COPY UserPluginAPI.csproj ./
 RUN dotnet restore
 
 # Copy everything
 COPY . .
 
-# IMPORTANT: Publish ONLY main project
+# Publish ONLY main project
 RUN dotnet publish UserPluginAPI.csproj -c Release -o /app/publish
 
-# ---------- RUNTIME ----------
+
+# ---------------- RUNTIME STAGE ----------------
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
