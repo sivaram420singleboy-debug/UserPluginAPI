@@ -9,6 +9,6 @@ namespace UserPluginAPI.Data
         {
         }
 
-       public DbSet<User> Users { get; set; } = null!;
+        public DbSet<User> Users { get; set; }
     }
 }

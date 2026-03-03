@@ -1,5 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseUrls("http://0.0.0.0:" + Environment.GetEnvironmentVariable("PORT"));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -10,7 +12,6 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapControllers();
