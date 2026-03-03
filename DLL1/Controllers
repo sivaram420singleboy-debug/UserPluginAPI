@@ -1,0 +1,25 @@
+using Microsoft.AspNetCore.Mvc;
+using Plugin.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace DLL1.Controllers
+{
+    [ApiController]
+    [Route("api/plugin/dll1")]
+    public class Dll1Controller : ControllerBase
+    {
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok("DLL1 Endpoint Working");
+        }
+    }
+
+    public class Dll1Plugin : IPlugin
+    {
+        public void Register(IServiceCollection services)
+        {
+            // services add panna use pannalaam
+        }
+    }
+}

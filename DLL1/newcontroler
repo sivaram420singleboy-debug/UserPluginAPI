@@ -1,0 +1,15 @@
+using Microsoft.AspNetCore.Mvc;
+
+namespace DLL1.Controllers
+{
+    [ApiController]
+    [Route("api/plugin/dll1")]
+    public class ExtraController : ControllerBase
+    {
+        [HttpGet("hello")]
+        public IActionResult Hello()
+        {
+            return Ok("New Endpoint Added Without Main Change");
+        }
+    }
+}

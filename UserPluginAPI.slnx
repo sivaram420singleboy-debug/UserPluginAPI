@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DLL1/DLL1.csproj" />
+  <Project Path="UserPluginAPI.csproj" />
+</Solution>
