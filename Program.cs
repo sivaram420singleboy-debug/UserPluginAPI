@@ -16,20 +16,18 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseSwagger();
+
 app.UseSwaggerUI(c =>
 {
     c.RoutePrefix = string.Empty;
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserPluginAPI v1");
 
-    c.InjectJavascript("/swagger-custom.js");
+    c.InjectJavascript("/swagger-redirect.js");
 });
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
