@@ -16,6 +16,8 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+app.UseStaticFiles();   // ⭐ index.html 
+
 app.UseSwagger();
 
 app.UseSwaggerUI(c =>
@@ -27,4 +29,5 @@ app.UseSwaggerUI(c =>
 });
 app.UseAuthorization();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 app.Run();
