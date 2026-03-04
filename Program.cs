@@ -5,16 +5,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-app.UseStaticFiles();   // ⭐ wwwroot files serve ஆக
-
 app.UseSwagger();
-app.UseSwaggerUI();
+
+app.UseSwaggerUI(c =>
+{
+    c.InjectJavascript("/swagger-ui/custom.js");
+});
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapFallbackToFile("index.html"); // ⭐ default page
+// index.html → swagger redirect
+app.MapGet("/index.html", context =>
+{
+    context.Response.Redirect("/swagger");
+    return Task.CompletedTask;
+});
 
 app.Run();

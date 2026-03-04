@@ -1,21 +1,33 @@
 window.onload = function () {
 
-    document.addEventListener("click", function (e) {
+    function attachEvents() {
 
-        let el = e.target.closest(".opblock-summary-path");
+        const blocks = document.querySelectorAll(".opblock");
 
-        if (el) {
+        blocks.forEach(block => {
 
-            let path = el.innerText.trim();
+            block.addEventListener("click", function () {
 
-            let base = window.location.origin;
+                const path = block.querySelector(".opblock-summary-path");
 
-            let fullUrl = base + path;
+                if (path) {
 
-            window.location.href = fullUrl;
+                    let api = path.innerText.trim();
 
-        }
+                    let base = window.location.origin;
 
-    });
+                    let newUrl = base + api;
+
+                    history.pushState({}, "", newUrl);
+
+                }
+
+            });
+
+        });
+
+    }
+
+    setTimeout(attachEvents, 2000);
 
 };
