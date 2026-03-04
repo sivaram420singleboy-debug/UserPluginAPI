@@ -16,18 +16,15 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-app.UseStaticFiles();
-
 app.UseSwagger();
 
 app.UseSwaggerUI(c =>
 {
-    c.RoutePrefix = string.Empty;
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserPluginAPI v1");
 
-    c.InjectJavascript("/swagger-redirect.js");
+    c.RoutePrefix = "index";     // swagger open url
+    c.InjectJavascript("/swagger-custom.js");   // custom script
 });
-
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

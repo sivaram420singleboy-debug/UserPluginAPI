@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace DLL1.Controllers
+namespace UserPluginAPI.Controllers
 {
     [ApiController]
     [Route("api/plugin/dll1")]
@@ -9,7 +9,7 @@ namespace DLL1.Controllers
         [HttpGet("test")]
         public IActionResult Test()
         {
-            return Ok("DLL1 Working");
+            return Ok("DLL1 Endpoint Working");
         }
     }
 }
