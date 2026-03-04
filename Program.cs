@@ -1,28 +1,31 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseStaticFiles();   // ⭐ THIS LINE MUST
-
+// Swagger
 app.UseSwagger();
-
 app.UseSwaggerUI(c =>
 {
-    c.InjectJavascript("/swagger-ui/custom.js");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserPluginAPI v1");
+    c.EnableDeepLinking(); // URL change when clicking endpoint
 });
-
-app.UseAuthorization();
 
 app.MapControllers();
+
+// Redirect root → Swagger
 app.MapGet("/", context =>
 {
-context.Response.Redirect("/index.html");
-return Task.CompletedTask;
+    context.Response.Redirect("/swagger");
+    return Task.CompletedTask;
 });
-app.UseDefaultFiles();
-app.UseStaticFiles();
+
 app.Run();
