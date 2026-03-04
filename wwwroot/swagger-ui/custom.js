@@ -1,33 +1,43 @@
 window.onload = function () {
 
-    function attachEvents() {
+    const interval = setInterval(() => {
 
-        const blocks = document.querySelectorAll(".opblock");
+        const container = document.querySelector(".topbar");
 
-        blocks.forEach(block => {
+        if (container && !document.getElementById("api-dashboard")) {
 
-            block.addEventListener("click", function () {
+            const panel = document.createElement("div");
+            panel.id = "api-dashboard";
 
-                const path = block.querySelector(".opblock-summary-path");
+            panel.style.padding = "10px";
+            panel.style.background = "#111";
+            panel.style.display = "flex";
+            panel.style.gap = "10px";
 
-                if (path) {
+            panel.innerHTML = `
+                <button onclick="openApi('/api/Calculator/addoperation')" style="padding:6px 12px;">Calculator</button>
+                <button onclick="openApi('/api/plugin/dll1/test')" style="padding:6px 12px;">DLL1</button>
+                <button onclick="openApi('/api/Image/ConvertPNG')" style="padding:6px 12px;">Image</button>
+                <button onclick="openApi('/api/User/getusers')" style="padding:6px 12px;">User</button>
+            `;
 
-                    let api = path.innerText.trim();
+            container.appendChild(panel);
 
-                    let base = window.location.origin;
+            clearInterval(interval);
+        }
 
-                    let newUrl = base + api;
-
-                    history.pushState({}, "", newUrl);
-
-                }
-
-            });
-
-        });
-
-    }
-
-    setTimeout(attachEvents, 2000);
+    }, 1000);
 
 };
+
+function openApi(path) {
+
+    const base = window.location.origin;
+
+    const url = base + path;
+
+    history.pushState({}, "", url);
+
+    window.open(url, "_blank");
+
+}

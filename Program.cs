@@ -12,6 +12,7 @@ app.UseSwaggerUI(c =>
     c.InjectJavascript("/swagger-ui/custom.js");
 });
 
+app.MapControllers();
 app.UseAuthorization();
 
 app.MapControllers();
