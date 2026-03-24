@@ -1,24 +1,29 @@
-window.onload = function () {
+window.addEventListener("load", function () {
 
-    document.addEventListener("click", function (e) {
+    setTimeout(function () {
 
-        // Only GET button click
-        const methodButton = e.target.closest(".opblock-summary-method");
+        document.querySelectorAll('.opblock-summary').forEach(function (block) {
 
-        if (methodButton && methodButton.innerText.trim() === "GET") {
+            block.addEventListener('click', function () {
 
-            const parent = methodButton.closest(".opblock");
-            const pathElement = parent.querySelector(".opblock-summary-path");
+                const methodElement = block.querySelector('.opblock-summary-method');
+                const pathElement = block.querySelector('.opblock-summary-path');
 
-            if (pathElement) {
+                if (!methodElement || !pathElement) return;
 
-                const path = pathElement.innerText.trim();
-                const baseUrl = window.location.origin;
+                const method = methodElement.textContent.trim();
+                const path = pathElement.textContent.trim();
 
-                // Redirect current page
-                window.location.href = baseUrl + path;
-            }
-        }
-    });
+                if (method === "GET") {
+                    const baseUrl = window.location.origin;
+                    const apiUrl = baseUrl + path;
+                    window.location.href = apiUrl;
+                }
 
-};
+            });
+
+        });
+
+    }, 1500);
+
+});

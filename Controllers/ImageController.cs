@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 
-[ApiController]
-[Route("api/[controller]")]
-public class ImageController : ControllerBase
+namespace UserPluginAPI.Controllers
 {
-    [HttpGet("ConvertPNG")]
-    public IActionResult ConvertPNG()
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ImageController : ControllerBase
     {
-        return Ok("Image Converted");
+        [HttpGet("ConvertPNG")]
+        public IActionResult ConvertPNG()
+        {
+            return Ok("Image converted successfully");
+        }
     }
 }
