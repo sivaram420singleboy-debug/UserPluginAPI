@@ -36,31 +36,43 @@
 <p id="msg"></p>
 
 <script>
-function activate() {
+async function activate() {
 
     let key = document.getElementById("key").value;
 
-    fetch("/api/license/activate", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            licenseKey: key
-        })
-    })
-    .then(res => res.text())
-    .then(data => {
-        document.getElementById("msg").innerText = data;
+    try {
+        const response = await fetch("/api/license/activate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                licenseKey: key
+            })
+        });
 
-        if (data.includes("✅")) {
+        const text = await response.text();
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            document.getElementById("msg").innerText = text;
+            return;
+        }
+
+        document.getElementById("msg").innerText = data.message;
+
+        if (data.message.includes("✅")) {
             setTimeout(() => {
                 window.location.href = "login.html";
             }, 1500);
         }
-    });
+
+    } catch (err) {
+        document.getElementById("msg").innerText = "❌ Server error";
+    }
 }
 </script>
-
 </body>
 </html>
