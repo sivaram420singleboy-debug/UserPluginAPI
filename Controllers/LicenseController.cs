@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SQLite;
-using Microsoft.AspNetCore.Authorization;
-
 
 namespace UserPluginAPI.Controllers
 {
@@ -17,7 +15,6 @@ namespace UserPluginAPI.Controllers
         [HttpPost("activate")]
         public IActionResult Activate([FromBody] LicenseRequest req)
         {
-            // 🔥 Input validation
             if (req == null || string.IsNullOrEmpty(req.LicenseKey))
                 return BadRequest(new { message = "❌ License key required" });
 
@@ -34,20 +31,26 @@ namespace UserPluginAPI.Controllers
 
                 var reader = cmd.ExecuteReader();
 
-                // 🔥 Invalid license
-              if (!reader.HasRows)
-    return BadRequest(new { message = "❌ Invalid License" });
+                if (!reader.HasRows)
+                    return BadRequest(new { message = "❌ Invalid License" });
 
-if (expiryDate.HasValue && expiryDate.Value < DateTime.Now)
-    return BadRequest(new { message = "❌ License expired" });
+                reader.Read();
 
-if (req == null || string.IsNullOrEmpty(req.LicenseKey))
-    return BadRequest(new { message = "❌ License key required" });
+                // 🔥 DEFINE VARIABLES HERE
+                string dbMachine = reader["MachineId"]?.ToString();
+                int isUsed = Convert.ToInt32(reader["IsUsed"]);
 
-if (!string.IsNullOrEmpty(dbMachine) && dbMachine != machineId)
-    return BadRequest(new { message = "❌ License already used on another PC" });
+                DateTime? expiryDate = null;
+                if (reader["ExpiryDate"] != DBNull.Value)
+                {
+                    expiryDate = Convert.ToDateTime(reader["ExpiryDate"]);
+                }
 
-                // 🔥 First activation
+                // 🔥 EXPIRY CHECK
+                if (expiryDate.HasValue && expiryDate.Value < DateTime.Now)
+                    return BadRequest(new { message = "❌ License expired" });
+
+                // 🔥 FIRST USE
                 if (isUsed == 0)
                 {
                     reader.Close();
@@ -64,11 +67,10 @@ if (!string.IsNullOrEmpty(dbMachine) && dbMachine != machineId)
                     return Ok(new { message = "✅ License Activated" });
                 }
 
-                // 🔥 Machine lock (important)
+                // 🔥 MACHINE LOCK
                 if (!string.IsNullOrEmpty(dbMachine) && dbMachine != machineId)
                     return BadRequest(new { message = "❌ License already used on another PC" });
 
-                // 🔥 Already valid
                 return Ok(new { message = "✅ License Valid" });
             }
         }
