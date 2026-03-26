@@ -9,61 +9,72 @@
             color: white;
             text-align: center;
             padding-top: 100px;
+            font-family: Arial;
         }
 
         input {
-            padding: 10px;
-            width: 250px;
+            padding: 12px;
+            width: 260px;
+            border-radius: 5px;
+            border: none;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px 25px;
+            margin-top: 20px;
             background: #00c6ff;
             border: none;
-            margin-top: 10px;
+            cursor: pointer;
+            color: black;
+            font-weight: bold;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
-<h2>🔑 Enter License Key</h2>
+<h2>🔑 Enter License</h2>
 
-<input type="text" id="key" placeholder="Enter License Key" />
-<br><br>
+<input type="text" id="license" placeholder="Enter License Key" />
+<br>
 
 <button onclick="activate()">Activate</button>
-
-<p id="msg"></p>
 
 <script>
 function activate() {
 
-    let key = document.getElementById("key").value;
+    let key = document.getElementById("license").value;
 
-    console.log("Button clicked"); // 🔥 TEST
+    if (!key) {
+        alert("⚠ Enter license key");
+        return;
+    }
 
-    fetch("https://userpluginapi.onrender.com/api/license/activate", {
+    // 🔥 MACHINE ID (IMPORTANT)
+    const machineId = navigator.userAgent + navigator.platform;
+
+    fetch("/api/license/activate", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            licenseKey: key
+            licenseKey: key,
+            machineId: machineId   // 🔥 MUST
         })
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("msg").innerText = data.message;
+
+        alert(data.message);
 
         if (data.message.includes("Activated") || data.message.includes("Valid")) {
-            setTimeout(() => {
-                window.location.href = "login.html";
-            }, 1500);
+            window.location.href = "/swagger/index.html";
         }
+
     })
     .catch(err => {
-        console.error(err);
-        document.getElementById("msg").innerText = "Server Error";
+        alert("Server Error");
     });
 }
 </script>

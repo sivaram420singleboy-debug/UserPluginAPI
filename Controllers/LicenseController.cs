@@ -12,6 +12,7 @@ namespace UserPluginAPI.Controllers
         public class LicenseRequest
         {
             public string LicenseKey { get; set; } = "";
+            public string MachineId { get; set; } = ""; // 🔥 ADD
         }
 
         [HttpPost("activate")]
@@ -23,7 +24,10 @@ namespace UserPluginAPI.Controllers
                     return BadRequest(new { message = "License key required" });
 
                 string key = req.LicenseKey.Trim();
-                string machineId = MachineHelper.GetMachineId();
+                string machineId = req.MachineId; // 🔥 IMPORTANT
+
+                if (string.IsNullOrEmpty(machineId))
+                    return BadRequest(new { message = "Machine ID missing" });
 
                 string dbPath = "/app/users.db";
 
@@ -43,21 +47,20 @@ namespace UserPluginAPI.Controllers
                     ", con);
                     create.ExecuteNonQuery();
 
-                    // ✅ INSERT DEFAULT LICENSE (ONLY ONCE)
+                    // ✅ DEFAULT LICENSE
                     var check = new SQLiteCommand("SELECT COUNT(*) FROM Licenses", con);
                     long count = (long)check.ExecuteScalar();
 
                     if (count == 0)
                     {
                         var insert = new SQLiteCommand(@"
-                            INSERT INTO Licenses (LicenseKey, MachineId, IsUsed, ExpiryDate)
-                            VALUES ('ABC123-XYZ789','',0,NULL)
+                            INSERT INTO Licenses (LicenseKey, MachineId, IsUsed)
+                            VALUES ('ABC123-XYZ789','',0)
                         ", con);
-
                         insert.ExecuteNonQuery();
                     }
 
-                    // ✅ FETCH LICENSE
+                    // ✅ FETCH
                     var cmd = new SQLiteCommand("SELECT * FROM Licenses WHERE LicenseKey=@key LIMIT 1", con);
                     cmd.Parameters.AddWithValue("@key", key);
 
@@ -71,7 +74,7 @@ namespace UserPluginAPI.Controllers
                         string dbMachine = reader["MachineId"]?.ToString() ?? "";
                         int isUsed = reader["IsUsed"] != DBNull.Value ? Convert.ToInt32(reader["IsUsed"]) : 0;
 
-                        // ✅ FIRST ACTIVATION
+                        // 🔥 FIRST TIME
                         if (isUsed == 0)
                         {
                             reader.Close();
@@ -88,7 +91,7 @@ namespace UserPluginAPI.Controllers
                             return Ok(new { message = "License Activated" });
                         }
 
-                        // ✅ MACHINE LOCK
+                        // 🔥 LOCK
                         if (!string.IsNullOrEmpty(dbMachine) && dbMachine != machineId)
                             return BadRequest(new { message = "License already used on another PC" });
 
@@ -101,7 +104,7 @@ namespace UserPluginAPI.Controllers
                 return StatusCode(500, new
                 {
                     message = "Server Error",
-                    error = ex.Message   // 🔥 clean error
+                    error = ex.Message
                 });
             }
         }
