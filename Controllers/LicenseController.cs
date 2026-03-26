@@ -4,9 +4,10 @@ using System.Data.SQLite;
 
 namespace UserPluginAPI.Controllers
 {
-    [ApiController]
-    [Route("api/license")]
-    public class LicenseController : ControllerBase
+   [ApiController]
+[Route("api/license")]
+[AllowAnonymous] // 🔥 ADD THIS
+public class LicenseController : ControllerBase
     {
         public class LicenseRequest
         {
