@@ -50,33 +50,28 @@ function activate() {
         return;
     }
 
+    // 🔥 MACHINE ID
     const machineId = navigator.userAgent + navigator.platform;
 
-    console.log("Sending:", key, machineId); // DEBUG
+    console.log("Machine ID:", machineId); // DEBUG
 
-    fetch("https://userpluginapi-3-3ptz.onrender.com/api/license/activate", {
+    fetch("/api/license/activate", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
             licenseKey: key,
-            machineId: machineId
+            machineId: machineId   // 🔥 MUST ADD
         })
     })
-    .then(res => {
-        return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
         alert(data.message);
-
-        if (data.message.includes("Activated") || data.message.includes("Valid")) {
-            window.location.href = "/swagger/index.html";
-        }
     })
     .catch(err => {
         console.error(err);
-        alert("Server Error");
+        alert("Server error");
     });
 }
 </script>
