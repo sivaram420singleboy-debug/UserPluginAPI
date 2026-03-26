@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SQLite;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace UserPluginAPI.Controllers
 {
@@ -33,23 +35,17 @@ namespace UserPluginAPI.Controllers
                 var reader = cmd.ExecuteReader();
 
                 // 🔥 Invalid license
-                if (!reader.HasRows)
-                    return BadRequest(new { message = "❌ Invalid License" });
+              if (!reader.HasRows)
+    return BadRequest(new { message = "❌ Invalid License" });
 
-                reader.Read();
+if (expiryDate.HasValue && expiryDate.Value < DateTime.Now)
+    return BadRequest(new { message = "❌ License expired" });
 
-                string dbMachine = reader["MachineId"]?.ToString();
-                int isUsed = Convert.ToInt32(reader["IsUsed"]);
+if (req == null || string.IsNullOrEmpty(req.LicenseKey))
+    return BadRequest(new { message = "❌ License key required" });
 
-                // 🔥 SAFE expiry check (no crash)
-                DateTime? expiryDate = null;
-                if (reader["ExpiryDate"] != DBNull.Value)
-                {
-                    expiryDate = Convert.ToDateTime(reader["ExpiryDate"]);
-                }
-
-                if (expiryDate.HasValue && expiryDate.Value < DateTime.Now)
-                    return BadRequest(new { message = "❌ License expired" });
+if (!string.IsNullOrEmpty(dbMachine) && dbMachine != machineId)
+    return BadRequest(new { message = "❌ License already used on another PC" });
 
                 // 🔥 First activation
                 if (isUsed == 0)
