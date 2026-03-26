@@ -7,7 +7,9 @@ public class MachineHelper
     {
         try
         {
-            string raw = Environment.MachineName + Environment.OSVersion.ToString();
+            string raw = Environment.MachineName 
+                       + Environment.OSVersion 
+                       + Environment.ProcessorCount;
 
             using (SHA256 sha = SHA256.Create())
             {
@@ -17,7 +19,8 @@ public class MachineHelper
         }
         catch
         {
-            return "DEFAULT_MACHINE";
+            // fallback unique ID
+            return Guid.NewGuid().ToString();
         }
     }
 }

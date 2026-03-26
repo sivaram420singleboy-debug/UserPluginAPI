@@ -27,23 +27,23 @@ namespace UserPluginAPI.Controllers
 
                 string dbPath = "/app/users.db";
 
-                using (var con = new SQLiteConnection($"Data Source={dbPath}"))
+                using (var con = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
                 {
                     con.Open();
 
-                    // 🔥 Create table if not exists
+                    // ✅ CREATE TABLE
                     var create = new SQLiteCommand(@"
                         CREATE TABLE IF NOT EXISTS Licenses (
                             Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            LicenseKey TEXT,
+                            LicenseKey TEXT UNIQUE,
                             MachineId TEXT,
-                            IsUsed INTEGER,
+                            IsUsed INTEGER DEFAULT 0,
                             ExpiryDate TEXT
                         );
                     ", con);
                     create.ExecuteNonQuery();
 
-                    // 🔥 Insert test license if empty
+                    // ✅ INSERT DEFAULT LICENSE (ONLY ONCE)
                     var check = new SQLiteCommand("SELECT COUNT(*) FROM Licenses", con);
                     long count = (long)check.ExecuteScalar();
 
@@ -51,46 +51,49 @@ namespace UserPluginAPI.Controllers
                     {
                         var insert = new SQLiteCommand(@"
                             INSERT INTO Licenses (LicenseKey, MachineId, IsUsed, ExpiryDate)
-                            VALUES ('ABC123','',0,NULL)
+                            VALUES ('ABC123-XYZ789','',0,NULL)
                         ", con);
+
                         insert.ExecuteNonQuery();
                     }
 
-                    var cmd = new SQLiteCommand("SELECT * FROM Licenses WHERE LicenseKey=@key", con);
+                    // ✅ FETCH LICENSE
+                    var cmd = new SQLiteCommand("SELECT * FROM Licenses WHERE LicenseKey=@key LIMIT 1", con);
                     cmd.Parameters.AddWithValue("@key", key);
 
-                    var reader = cmd.ExecuteReader();
-
-                    if (!reader.HasRows)
-                        return BadRequest(new { message = "Invalid License" });
-
-                    reader.Read();
-
-                    string dbMachine = reader["MachineId"]?.ToString() ?? "";
-                    int isUsed = reader["IsUsed"] != DBNull.Value ? Convert.ToInt32(reader["IsUsed"]) : 0;
-
-                    // 🔥 First activation
-                    if (isUsed == 0)
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        reader.Close();
+                        if (!reader.HasRows)
+                            return BadRequest(new { message = "Invalid License" });
 
-                        var update = new SQLiteCommand(@"
-                            UPDATE Licenses 
-                            SET IsUsed=1, MachineId=@machine 
-                            WHERE LicenseKey=@key", con);
+                        reader.Read();
 
-                        update.Parameters.AddWithValue("@machine", machineId);
-                        update.Parameters.AddWithValue("@key", key);
-                        update.ExecuteNonQuery();
+                        string dbMachine = reader["MachineId"]?.ToString() ?? "";
+                        int isUsed = reader["IsUsed"] != DBNull.Value ? Convert.ToInt32(reader["IsUsed"]) : 0;
 
-                        return Ok(new { message = "License Activated" });
+                        // ✅ FIRST ACTIVATION
+                        if (isUsed == 0)
+                        {
+                            reader.Close();
+
+                            var update = new SQLiteCommand(@"
+                                UPDATE Licenses 
+                                SET IsUsed=1, MachineId=@machine 
+                                WHERE LicenseKey=@key", con);
+
+                            update.Parameters.AddWithValue("@machine", machineId);
+                            update.Parameters.AddWithValue("@key", key);
+                            update.ExecuteNonQuery();
+
+                            return Ok(new { message = "License Activated" });
+                        }
+
+                        // ✅ MACHINE LOCK
+                        if (!string.IsNullOrEmpty(dbMachine) && dbMachine != machineId)
+                            return BadRequest(new { message = "License already used on another PC" });
+
+                        return Ok(new { message = "License Valid" });
                     }
-
-                    // 🔥 Machine lock
-                    if (!string.IsNullOrEmpty(dbMachine) && dbMachine != machineId)
-                        return BadRequest(new { message = "Used on another machine" });
-
-                    return Ok(new { message = "License Valid" });
                 }
             }
             catch (Exception ex)
@@ -98,7 +101,7 @@ namespace UserPluginAPI.Controllers
                 return StatusCode(500, new
                 {
                     message = "Server Error",
-                    error = ex.ToString() // 🔥 FULL ERROR
+                    error = ex.Message   // 🔥 clean error
                 });
             }
         }
