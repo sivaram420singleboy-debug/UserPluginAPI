@@ -49,15 +49,19 @@ function activate() {
             licenseKey: key
         })
     })
-    .then(res => res.text())
+    .then(res => res.json())
     .then(data => {
-        document.getElementById("msg").innerText = data;
 
-        if (data.includes("✅")) {
+        document.getElementById("msg").innerText = data.message;
+
+        if (data.message.includes("Activated") || data.message.includes("Valid")) {
             setTimeout(() => {
                 window.location.href = "login.html";
             }, 1500);
         }
+    })
+    .catch(err => {
+        document.getElementById("msg").innerText = "❌ Server Error";
     });
 }
 </script>
