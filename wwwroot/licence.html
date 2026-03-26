@@ -49,12 +49,12 @@ function activate() {
             licenseKey: key
         })
     })
-    .then(res => res.json())
+    .then(res => res.text())   // 🔥 CHANGE HERE
     .then(data => {
 
-        document.getElementById("msg").innerText = data.message;
+        document.getElementById("msg").innerText = data;
 
-        if (data.message.includes("Activated") || data.message.includes("Valid")) {
+        if (data.includes("Activated") || data.includes("Valid")) {
             setTimeout(() => {
                 window.location.href = "login.html";
             }, 1500);

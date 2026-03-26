@@ -5,13 +5,19 @@ namespace UserPluginAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize]  // 🔥 Login compulsory
     public class CalculatorController : ControllerBase
     {
         [HttpGet("add")]
         public IActionResult Add(int a, int b)
         {
-            return Ok(a + b);
+            int result = a + b;
+
+            return Ok(new
+            {
+                message = "Calculation Success",
+                result = result
+            });
         }
     }
 }
