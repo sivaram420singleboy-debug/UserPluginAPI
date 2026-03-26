@@ -10,11 +10,10 @@ namespace UserPluginAPI.Controllers
     public class LicenseController : ControllerBase
     {
         public class LicenseRequest
-        {
-            public string LicenseKey { get; set; } = "";
-            public string MachineId { get; set; } = ""; // 🔥 IMPORTANT
-        }
-
+{
+    public string LicenseKey { get; set; } = "";
+    public string MachineId { get; set; } = ""; // 🔥 MUST
+}
         [HttpPost("activate")]
         public IActionResult Activate([FromBody] LicenseRequest req)
         {

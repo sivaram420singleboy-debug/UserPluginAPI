@@ -16,10 +16,10 @@ public class AuthLicenseMiddleware
     {
         var path = context.Request.Path.Value?.ToLower() ?? "";
 
-        // 🔓 PUBLIC ROUTES (NO CHECK)
+        // 🔥 1. FULL BYPASS FOR LICENSE + PUBLIC
         if (path.StartsWith("/swagger") ||
             path.StartsWith("/api/login") ||
-            path.StartsWith("/api/license") ||
+            path.StartsWith("/api/license") ||   // ✅ VERY IMPORTANT
             path.StartsWith("/index.html") ||
             path.StartsWith("/login.html") ||
             path.StartsWith("/admin.html") ||
@@ -31,7 +31,7 @@ public class AuthLicenseMiddleware
             return;
         }
 
-        // 🔐 TOKEN CHECK
+        // 🔐 2. TOKEN CHECK
         var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
 
         if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
@@ -41,23 +41,16 @@ public class AuthLicenseMiddleware
             return;
         }
 
-        var token = authHeader.Split(" ").Last();
-
-        if (string.IsNullOrEmpty(token))
-        {
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("❌ Invalid token");
-            return;
-        }
-
-        // 🔐 LICENSE CHECK
+        // 🔐 3. LICENSE CHECK
         string machineId = MachineHelper.GetMachineId();
 
-        using (var con = new SQLiteConnection("Data Source=users.db"))
+        // 🔥 FIX: USE SAME PATH AS CONTROLLER
+        string dbPath = "/app/users.db";
+
+        using (var con = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
         {
             con.Open();
 
-            // 🔥 Only active license check
             string query = "SELECT * FROM Licenses WHERE IsUsed=1 LIMIT 1";
             var cmd = new SQLiteCommand(query, con);
 
@@ -89,17 +82,8 @@ public class AuthLicenseMiddleware
                 }
             }
 
-            // 🔥 FIRST TIME → bind machine
-            if (string.IsNullOrEmpty(storedMachine))
-            {
-                reader.Close();
-
-                string update = "UPDATE Licenses SET MachineId=@mid WHERE IsUsed=1";
-                var updateCmd = new SQLiteCommand(update, con);
-                updateCmd.Parameters.AddWithValue("@mid", machineId);
-                updateCmd.ExecuteNonQuery();
-            }
-            else if (storedMachine != machineId)
+            // 🔥 MACHINE LOCK (STRICT)
+            if (!string.IsNullOrEmpty(storedMachine) && storedMachine != machineId)
             {
                 context.Response.StatusCode = 403;
                 await context.Response.WriteAsync("❌ License already used on another PC");
