@@ -1,14 +1,17 @@
-namespace DLL2.Controllers;
-
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
-[ApiController]
-[Route("api/[controller]")]
-public class Dll2Controller : ControllerBase
+namespace DLL2.Controllers
 {
-    [HttpGet("test")]
-    public IActionResult Test()
+    [ApiController]
+    [Route("api/plugin/dll2")]
+    [Authorize]
+    public class Dll2Controller : ControllerBase
     {
-        return Ok("DLL2 Working");
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok("DLL2 Working");
+        }
     }
 }

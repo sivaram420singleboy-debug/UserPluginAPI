@@ -8,7 +8,6 @@ namespace UserPluginAPI.Data
             : base(options)
         {
         }
-
-        public DbSet<User> Users { get; set; }
+public DbSet<License> Licenses { get; set; }
     }
 }

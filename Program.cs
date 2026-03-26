@@ -5,15 +5,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 🔐 SECRET KEY
+var key = Encoding.UTF8.GetBytes("THIS_IS_SUPER_SECRET_KEY_12345");
+
 // ---------------- SERVICES ----------------
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// 🔐 JWT Secret Key
-var key = Encoding.UTF8.GetBytes("ThisIsASecretKeyForJWTAuthentication123!");
-
-// 🔐 Authentication
+// 🔐 JWT AUTH
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -33,7 +33,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 
-    // 🔥 Custom Unauthorized Message
     options.Events = new JwtBearerEvents
     {
         OnChallenge = context =>
@@ -46,34 +45,21 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 🔐 Authorization (All controllers protected by default)
-builder.Services.AddAuthorization(options =>
+// 🔥 Swagger + JWT
+builder.Services.AddSwaggerGen(c =>
 {
-    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "UserPluginAPI", Version = "v1" });
 
-// 📄 Swagger Configuration
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Title = "UserPluginAPI",
-        Version = "v1"
-    });
-
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "Enter: Bearer {your_token}",
-        Name = "Authorization",
         In = ParameterLocation.Header,
+        Description = "Enter JWT Token",
+        Name = "Authorization",
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT"
+        Scheme = "bearer"
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -93,17 +79,28 @@ var app = builder.Build();
 
 // ---------------- MIDDLEWARE ----------------
 
+// 🔹 Static files
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// 🔥 IMPORTANT: Swagger FIRST (before your middleware)
 app.UseSwagger();
+
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserPluginAPI v1");
-    c.RoutePrefix = string.Empty;   // 🔥 Swagger root-ல் open ஆகும்
-    c.EnableDeepLinking();
+    c.RoutePrefix = "swagger"; // 🔥 IMPORTANT
 });
 
+// 🔐 CUSTOM MIDDLEWARE AFTER SWAGGER
+app.UseMiddleware<AuthLicenseMiddleware>();
+
+// 🔐 Auth
 app.UseAuthentication();
 app.UseAuthorization();
 
+// 🔹 Controllers
 app.MapControllers();
+
 
 app.Run();

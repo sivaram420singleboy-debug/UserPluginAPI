@@ -1,14 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>UserPluginAPI Dashboard</title>
-</head>
+    <title>Activate License</title>
 
+    <style>
+        body {
+            background: #1e2f44;
+            color: white;
+            text-align: center;
+            padding-top: 100px;
+            font-family: Arial;
+        }
+
+        input {
+            padding: 12px;
+            width: 260px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 12px 25px;
+            margin-top: 20px;
+            background: #00c6ff;
+            border: none;
+            cursor: pointer;
+            color: black;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #00a8dd;
+        }
+    </style>
+</head>
 <body>
 
-<h1>UserPluginAPI Dashboard</h1>
+<h2>🔑 Enter License</h2>
 
-<a href="/swagger/index.html">Open Swagger</a>
+<input type="text" id="license" placeholder="Enter License Key" />
+<br>
+
+<button onclick="activate()">Activate</button>
+
+<script>
+function activate() {
+
+    let key = document.getElementById("license").value;
+
+    if (!key) {
+        alert("⚠ Please enter license key");
+        return;
+    }
+
+    fetch("/api/license/activate", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            licenseKey: key
+        })
+    })
+    .then(res => res.json())   // 🔥 CHANGE HERE
+    .then(data => {
+
+        alert(data.message);
+
+        if (data.message.includes("Activated") || data.message.includes("Valid")) {
+            window.location.href = "/swagger/index.html"; // 🔥 change target page
+        }
+
+    })
+    .catch(err => {
+        alert("❌ Error: " + err);
+    });
+}
+</script>
 
 </body>
 </html>

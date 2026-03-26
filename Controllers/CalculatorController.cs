@@ -5,7 +5,7 @@ namespace UserPluginAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]  // 🔥 Login compulsory
+    [Authorize]
     public class CalculatorController : ControllerBase
     {
         [HttpGet("add")]
