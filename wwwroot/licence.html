@@ -40,7 +40,7 @@ function activate() {
 
     let key = document.getElementById("key").value;
 
-    fetch("/api/license/activate", {
+    fetch("https://userpluginapi.onrender.com/api/license/activate", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -49,12 +49,12 @@ function activate() {
             licenseKey: key
         })
     })
-    .then(res => res.text())   // 🔥 CHANGE HERE
+    .then(res => res.json())
     .then(data => {
 
-        document.getElementById("msg").innerText = data;
+        document.getElementById("msg").innerText = data.message;
 
-        if (data.includes("Activated") || data.includes("Valid")) {
+        if (data.message.includes("Activated") || data.message.includes("Valid")) {
             setTimeout(() => {
                 window.location.href = "login.html";
             }, 1500);
@@ -62,6 +62,7 @@ function activate() {
     })
     .catch(err => {
         document.getElementById("msg").innerText = "❌ Server Error";
+        console.error(err);
     });
 }
 </script>
