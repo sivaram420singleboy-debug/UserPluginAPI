@@ -10,6 +10,7 @@ namespace UserPluginAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    
     public class LoginController : ControllerBase
     {
         private readonly string secretKey = "THIS_IS_SUPER_SECRET_KEY_12345"; // 🔥 SAME KEY

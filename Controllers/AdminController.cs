@@ -1,33 +1,43 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;   // 🔥 ADD THIS
 using System.Data.SQLite;
+
+
 
 namespace UserPluginAPI.Controllers
 {
     [ApiController]
     [Route("api/admin")]
-    [Authorize] // 🔐 full protection
+    [Authorize]   // 🔐 FULL CONTROLLER PROTECTION
     public class AdminController : ControllerBase
     {
-        [HttpPost("generate")]
+       [Authorize]
+[HttpPost("generate")]
         public IActionResult Generate()
         {
             try
             {
-                string key = "LIC-" + Guid.NewGuid().ToString("N")[..8].ToUpper();
+                // 🔑 Generate License Key
+                string key = "LIC-" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+
+                // ⏳ Expiry (30 days)
                 DateTime expiryDate = DateTime.Now.AddDays(30);
 
-                using var con = new SQLiteConnection("Data Source=users.db");
-                con.Open();
+                using (var con = new SQLiteConnection("Data Source=users.db"))
+                {
+                    con.Open();
 
-                string query = @"INSERT INTO Licenses 
-                                 (LicenseKey, IsUsed, MachineId, ExpiryDate) 
-                                 VALUES (@key, 0, NULL, @exp)";
+                    string query = @"INSERT INTO Licenses 
+                                     (LicenseKey, IsUsed, MachineId, ExpiryDate) 
+                                     VALUES (@key, 0, NULL, @exp)";
 
-                var cmd = new SQLiteCommand(query, con);
-                cmd.Parameters.AddWithValue("@key", key);
-                cmd.Parameters.AddWithValue("@exp", expiryDate.ToString("yyyy-MM-dd"));
-                cmd.ExecuteNonQuery();
+                    var cmd = new SQLiteCommand(query, con);
+
+                    cmd.Parameters.AddWithValue("@key", key);
+                    cmd.Parameters.AddWithValue("@exp", expiryDate.ToString("yyyy-MM-dd"));
+
+                    cmd.ExecuteNonQuery();
+                }
 
                 return Ok(new
                 {
@@ -38,7 +48,7 @@ namespace UserPluginAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "❌ " + ex.Message);
+                return StatusCode(500, "❌ Error: " + ex.Message);
             }
         }
     }

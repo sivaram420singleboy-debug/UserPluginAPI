@@ -50,8 +50,10 @@ function activate() {
         return;
     }
 
-    // 🔥 MACHINE ID (IMPORTANT)
+    // 🔥 MACHINE ID CREATE
     const machineId = navigator.userAgent + navigator.platform;
+
+    console.log("Machine ID:", machineId);
 
     fetch("/api/license/activate", {
         method: "POST",
@@ -60,7 +62,7 @@ function activate() {
         },
         body: JSON.stringify({
             licenseKey: key,
-            machineId: machineId   // 🔥 MUST
+            machineId: machineId
         })
     })
     .then(res => res.json())
@@ -74,6 +76,7 @@ function activate() {
 
     })
     .catch(err => {
+        console.error(err);
         alert("Server Error");
     });
 }
