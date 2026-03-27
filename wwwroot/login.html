@@ -7,28 +7,35 @@
 
 <h2>Login</h2>
 
-<!-- 🔹 USERNAME -->
 <input type="text" id="username" placeholder="Username" />
 <br><br>
 
-<!-- 🔹 PASSWORD -->
 <input type="password" id="password" placeholder="Password" />
 <br><br>
 
-<!-- 🔥 BUTTON (INGA THAN PODANUM) -->
 <button onclick="login()">Login</button>
 
-<!-- 🔥 SCRIPT -->
 <script>
 function login() {
 
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
 
-    fetch('/api/login/login', {
+    // 🔥 SAME MACHINE ID (FROM LICENSE PAGE)
+    let machineId = localStorage.getItem("machineId");
+
+    if (!machineId) {
+        alert("❌ Please activate license first");
+        return;
+    }
+
+    console.log("Machine ID:", machineId);
+
+    fetch("https://userpluginapi-3-3ptz.onrender.com/api/login/login", {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'MachineId': machineId   // 🔥 VERY IMPORTANT
         },
         body: JSON.stringify({
             username: username,
@@ -46,13 +53,12 @@ function login() {
 
             alert("✅ Login Success");
 
-            // 🔥 IMPORTANT FIX
             setTimeout(() => {
                 window.location.href = "/admin.html";
             }, 500);
 
         } else {
-            alert(data);
+            alert(data.message);
         }
     })
     .catch(err => {

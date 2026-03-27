@@ -10,30 +10,39 @@ namespace UserPluginAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    
     public class LoginController : ControllerBase
     {
-        private readonly string secretKey = "THIS_IS_SUPER_SECRET_KEY_12345"; // 🔥 SAME KEY
+        private readonly string secretKey = "THIS_IS_SUPER_SECRET_KEY_12345";
 
         [AllowAnonymous]
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest request)
         {
-            // ❌ NULL CHECK
-            if (request == null || string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+            // 🔥 VALIDATION
+            if (request == null || 
+                string.IsNullOrEmpty(request.Username) || 
+                string.IsNullOrEmpty(request.Password))
             {
-                return BadRequest("❌ Username or Password missing");
+                return BadRequest(new { message = "❌ Username or Password missing" });
             }
 
-            // ❌ WRONG LOGIN
+            // 🔥 LOGIN CHECK
             if (request.Username != "admin" || request.Password != "1234")
             {
-                return Unauthorized("❌ Invalid username or password");
+                return Unauthorized(new { message = "❌ Invalid username or password" });
             }
 
-            string machineId = MachineHelper.GetMachineId();
+            // 🔥 MACHINE ID FROM CLIENT HEADER
+            string machineId = Request.Headers["MachineId"];
 
-            using (SQLiteConnection con = new SQLiteConnection("Data Source=users.db"))
+            if (string.IsNullOrEmpty(machineId))
+            {
+                return BadRequest(new { message = "❌ Machine ID missing in login" });
+            }
+
+            string dbPath = "/app/users.db";
+
+            using (SQLiteConnection con = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
             {
                 con.Open();
 
@@ -44,16 +53,17 @@ namespace UserPluginAPI.Controllers
 
                 if (!reader.HasRows)
                 {
-                    return BadRequest("❌ Please activate license first");
+                    return BadRequest(new { message = "❌ Please activate license first" });
                 }
 
                 reader.Read();
 
                 string storedMachine = reader["MachineId"]?.ToString();
 
+                // 🔥 MACHINE LOCK CHECK
                 if (!string.IsNullOrEmpty(storedMachine) && storedMachine != machineId)
                 {
-                    return BadRequest("❌ License already used on another PC");
+                    return BadRequest(new { message = "❌ License already used on another PC" });
                 }
             }
 
