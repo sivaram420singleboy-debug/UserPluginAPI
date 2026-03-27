@@ -58,7 +58,7 @@ namespace UserPluginAPI.Controllers
                     {
                         var insert = new SQLiteCommand(@"
                             INSERT INTO Licenses (LicenseKey, MachineId, IsUsed, ExpiryDate)
-                            VALUES ('ABC123-XYZ789','',0,NULL)
+                             VALUES ('NEWKEY-001-AAA','',0,NULL)
                         ", con);
 
                         insert.ExecuteNonQuery();
