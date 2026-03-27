@@ -10,10 +10,11 @@ namespace UserPluginAPI.Controllers
     public class LicenseController : ControllerBase
     {
         public class LicenseRequest
-{
-    public string LicenseKey { get; set; } = "";
-    public string MachineId { get; set; } = ""; // 🔥 MUST
-}
+        {
+            public string LicenseKey { get; set; } = "";
+            public string MachineId { get; set; } = "";
+        }
+
         [HttpPost("activate")]
         public IActionResult Activate([FromBody] LicenseRequest req)
         {
@@ -47,7 +48,7 @@ namespace UserPluginAPI.Controllers
                     ", con);
                     create.ExecuteNonQuery();
 
-                    // 🔥 INSERT DEFAULT LICENSE (ONLY ONCE)
+                    // 🔥 INSERT DEFAULT LICENSE (ONLY FIRST TIME)
                     var check = new SQLiteCommand("SELECT COUNT(*) FROM Licenses", con);
                     long count = (long)check.ExecuteScalar();
 
@@ -68,12 +69,24 @@ namespace UserPluginAPI.Controllers
                     using (var reader = cmd.ExecuteReader())
                     {
                         if (!reader.HasRows)
-                            return BadRequest(new { message = "Invalid License" });
+                            return BadRequest(new { message = "❌ Invalid License" });
 
                         reader.Read();
 
                         string dbMachine = reader["MachineId"]?.ToString() ?? "";
                         int isUsed = reader["IsUsed"] != DBNull.Value ? Convert.ToInt32(reader["IsUsed"]) : 0;
+                        string expiry = reader["ExpiryDate"]?.ToString();
+
+                        // 🔥 EXPIRY CHECK (optional ready)
+                        if (!string.IsNullOrEmpty(expiry))
+                        {
+                            DateTime expDate;
+                            if (DateTime.TryParse(expiry, out expDate))
+                            {
+                                if (DateTime.UtcNow > expDate)
+                                    return BadRequest(new { message = "❌ License Expired" });
+                            }
+                        }
 
                         // 🔥 FIRST TIME ACTIVATION
                         if (isUsed == 0)
@@ -89,14 +102,14 @@ namespace UserPluginAPI.Controllers
                             update.Parameters.AddWithValue("@key", key);
                             update.ExecuteNonQuery();
 
-                            return Ok(new { message = "License Activated" });
+                            return Ok(new { message = "✅ License Activated" });
                         }
 
-                        // 🔥 MACHINE LOCK
+                        // 🔥 MACHINE LOCK CHECK
                         if (!string.IsNullOrEmpty(dbMachine) && dbMachine != machineId)
-                            return BadRequest(new { message = "License already used on another PC" });
+                            return BadRequest(new { message = "❌ License already used on another PC" });
 
-                        return Ok(new { message = "License Valid" });
+                        return Ok(new { message = "✅ License Valid" });
                     }
                 }
             }
@@ -104,7 +117,7 @@ namespace UserPluginAPI.Controllers
             {
                 return StatusCode(500, new
                 {
-                    message = "Server Error",
+                    message = "❌ Server Error",
                     error = ex.Message
                 });
             }

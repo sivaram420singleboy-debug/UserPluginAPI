@@ -29,6 +29,10 @@
             font-weight: bold;
             border-radius: 5px;
         }
+
+        button:hover {
+            background: #00a8dd;
+        }
     </style>
 </head>
 <body>
@@ -36,7 +40,7 @@
 <h2>🔑 Enter License</h2>
 
 <input type="text" id="license" placeholder="Enter License Key" />
-<br>
+<br><br>
 
 <button onclick="activate()">Activate</button>
 
@@ -46,34 +50,47 @@ function activate() {
     let key = document.getElementById("license").value;
 
     if (!key) {
-        alert("⚠ Enter license key");
+        alert("⚠ Please enter license key");
         return;
     }
 
-    // 🔥 MACHINE ID
-    const machineId = navigator.userAgent + navigator.platform;
+    // 🔥 MACHINE ID GENERATE (SAFE METHOD)
+    let machineId = localStorage.getItem("machineId");
 
-    console.log("Machine ID:", machineId); // DEBUG
+    if (!machineId) {
+        machineId = "WEB-" + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem("machineId", machineId);
+    }
 
-    fetch("/api/license/activate", {
+    console.log("Machine ID:", machineId);
+
+    // 🔥 IMPORTANT → FULL URL USE
+    fetch("https://userpluginapi-3-3ptz.onrender.com/api/license/activate", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
             licenseKey: key,
-            machineId: machineId   // 🔥 MUST ADD
+            machineId: machineId
         })
     })
     .then(res => res.json())
     .then(data => {
+
         alert(data.message);
+
+        if (data.message.includes("Activated") || data.message.includes("Valid")) {
+            window.location.href = "/swagger/index.html";
+        }
+
     })
     .catch(err => {
         console.error(err);
-        alert("Server error");
+        alert("❌ Server error");
     });
 }
 </script>
+
 </body>
 </html>
