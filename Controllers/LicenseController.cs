@@ -48,11 +48,13 @@ namespace UserPluginAPI.Controllers
                     ", con);
                     create.ExecuteNonQuery();
 
-                    // 🔥 INSERT DEFAULT LICENSE (ONLY FIRST TIME)
-                    var check = new SQLiteCommand("SELECT COUNT(*) FROM Licenses", con);
-                    long count = (long)check.ExecuteScalar();
+                    // 🔥 IMPORTANT FIX (AUTO INSERT LICENSE ALWAYS)
+                    var checkKey = new SQLiteCommand(
+                        "SELECT COUNT(*) FROM Licenses WHERE LicenseKey='ABC123-XYZ789'", con);
 
-                    if (count == 0)
+                    long exists = (long)checkKey.ExecuteScalar();
+
+                    if (exists == 0)
                     {
                         var insert = new SQLiteCommand(@"
                             INSERT INTO Licenses (LicenseKey, MachineId, IsUsed, ExpiryDate)
@@ -77,7 +79,7 @@ namespace UserPluginAPI.Controllers
                         int isUsed = reader["IsUsed"] != DBNull.Value ? Convert.ToInt32(reader["IsUsed"]) : 0;
                         string expiry = reader["ExpiryDate"]?.ToString();
 
-                        // 🔥 EXPIRY CHECK (optional ready)
+                        // 🔥 EXPIRY CHECK
                         if (!string.IsNullOrEmpty(expiry))
                         {
                             DateTime expDate;
