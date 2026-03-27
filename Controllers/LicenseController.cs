@@ -15,12 +15,12 @@ namespace UserPluginAPI.Controllers
             public string MachineId { get; set; } = "";
         }
 
+        // 🔥 ACTIVATE LICENSE
         [HttpPost("activate")]
         public IActionResult Activate([FromBody] LicenseRequest req)
         {
             try
             {
-                // 🔥 VALIDATION
                 if (req == null || string.IsNullOrWhiteSpace(req.LicenseKey))
                     return BadRequest(new { message = "License key required" });
 
@@ -48,9 +48,9 @@ namespace UserPluginAPI.Controllers
                     ", con);
                     create.ExecuteNonQuery();
 
-                    // 🔥 IMPORTANT FIX (AUTO INSERT LICENSE ALWAYS)
+                    // 🔥 AUTO INSERT LICENSE (DEFAULT KEY)
                     var checkKey = new SQLiteCommand(
-                        "SELECT COUNT(*) FROM Licenses WHERE LicenseKey='KEY-003-CCC'", con);
+                        "SELECT COUNT(*) FROM Licenses WHERE LicenseKey='IG-003-CCC'", con);
 
                     long exists = (long)checkKey.ExecuteScalar();
 
@@ -58,7 +58,7 @@ namespace UserPluginAPI.Controllers
                     {
                         var insert = new SQLiteCommand(@"
                             INSERT INTO Licenses (LicenseKey, MachineId, IsUsed, ExpiryDate)
-                             VALUES ('KEY-003-CCC','',0,NULL)
+                            VALUES ('IG-003-CCC','',0,NULL)
                         ", con);
 
                         insert.ExecuteNonQuery();
@@ -77,20 +77,8 @@ namespace UserPluginAPI.Controllers
 
                         string dbMachine = reader["MachineId"]?.ToString() ?? "";
                         int isUsed = reader["IsUsed"] != DBNull.Value ? Convert.ToInt32(reader["IsUsed"]) : 0;
-                        string expiry = reader["ExpiryDate"]?.ToString();
 
-                        // 🔥 EXPIRY CHECK
-                        if (!string.IsNullOrEmpty(expiry))
-                        {
-                            DateTime expDate;
-                            if (DateTime.TryParse(expiry, out expDate))
-                            {
-                                if (DateTime.UtcNow > expDate)
-                                    return BadRequest(new { message = "❌ License Expired" });
-                            }
-                        }
-
-                        // 🔥 FIRST TIME ACTIVATION
+                        // 🔥 FIRST TIME
                         if (isUsed == 0)
                         {
                             reader.Close();
@@ -107,11 +95,14 @@ namespace UserPluginAPI.Controllers
                             return Ok(new { message = "✅ License Activated" });
                         }
 
-                        // 🔥 MACHINE LOCK CHECK
-                        if (!string.IsNullOrEmpty(dbMachine) && dbMachine != machineId)
-                            return BadRequest(new { message = "❌ License already used on another PC" });
+                        // 🔥 SAME PC
+                        if (dbMachine == machineId)
+                        {
+                            return Ok(new { message = "✅ License Valid" });
+                        }
 
-                        return Ok(new { message = "✅ License Valid" });
+                        // 🔥 OTHER PC
+                        return BadRequest(new { message = "❌ License already used on another PC" });
                     }
                 }
             }
@@ -122,6 +113,34 @@ namespace UserPluginAPI.Controllers
                     message = "❌ Server Error",
                     error = ex.Message
                 });
+            }
+        }
+
+        // 🔥 CHECK LICENSE (AUTO LOGIN)
+        [HttpGet("check")]
+        public IActionResult Check(string machineId)
+        {
+            if (string.IsNullOrEmpty(machineId))
+                return Ok(new { status = "INVALID" });
+
+            string dbPath = "/app/users.db";
+
+            using (var con = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
+            {
+                con.Open();
+
+                var cmd = new SQLiteCommand(
+                    "SELECT * FROM Licenses WHERE MachineId=@mid AND IsUsed=1 LIMIT 1",
+                    con);
+
+                cmd.Parameters.AddWithValue("@mid", machineId);
+
+                var reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                    return Ok(new { status = "VALID" });
+
+                return Ok(new { status = "INVALID" });
             }
         }
     }

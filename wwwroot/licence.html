@@ -35,6 +35,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <h2>🔑 Enter License</h2>
@@ -45,16 +46,10 @@
 <button onclick="activate()">Activate</button>
 
 <script>
-function activate() {
 
-    let key = document.getElementById("license").value;
+// 🔥 AUTO CHECK (PAGE LOAD)
+window.onload = function () {
 
-    if (!key) {
-        alert("⚠ Please enter license key");
-        return;
-    }
-
-    // 🔥 MACHINE ID GENERATE (SAFE METHOD)
     let machineId = localStorage.getItem("machineId");
 
     if (!machineId) {
@@ -64,7 +59,32 @@ function activate() {
 
     console.log("Machine ID:", machineId);
 
-    // 🔥 IMPORTANT → FULL URL USE
+    // 🔥 CHECK ALREADY ACTIVATED
+    fetch("https://userpluginapi-3-3ptz.onrender.com/api/license/check?machineId=" + machineId)
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.status === "VALID") {
+            // ✅ Already activated → skip page
+            window.location.href = "/swagger/index.html";
+        }
+
+    });
+};
+
+
+// 🔥 ACTIVATE FUNCTION
+function activate() {
+
+    let key = document.getElementById("license").value;
+
+    if (!key) {
+        alert("⚠ Please enter license key");
+        return;
+    }
+
+    let machineId = localStorage.getItem("machineId");
+
     fetch("https://userpluginapi-3-3ptz.onrender.com/api/license/activate", {
         method: "POST",
         headers: {
@@ -90,6 +110,7 @@ function activate() {
         alert("❌ Server error");
     });
 }
+
 </script>
 
 </body>
