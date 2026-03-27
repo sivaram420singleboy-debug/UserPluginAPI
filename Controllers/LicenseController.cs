@@ -50,7 +50,7 @@ namespace UserPluginAPI.Controllers
 
                     // 🔥 IMPORTANT FIX (AUTO INSERT LICENSE ALWAYS)
                     var checkKey = new SQLiteCommand(
-                        "SELECT COUNT(*) FROM Licenses WHERE LicenseKey='ABC123-XYZ789'", con);
+                        "SELECT COUNT(*) FROM Licenses WHERE LicenseKey='NEWKEY-001-AAA'", con);
 
                     long exists = (long)checkKey.ExecuteScalar();
 
